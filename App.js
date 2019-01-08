@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Card, Button, Divider } from 'react-native-elements';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { Card, Button, Divider, Header } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 import Login from './components/login.js'
 import CreateAccount from './components/create_account.js'
@@ -13,7 +14,8 @@ export default class App extends React.Component {
     this.state = { 
       create_user: false,
       logged_in: false,
-      current_user: {}
+      current_user: {},
+      create_new_parent: false
     };
   }
 
@@ -32,11 +34,10 @@ export default class App extends React.Component {
       this.setState({create_user: false});
   }
 
-  _logoutUser(){
-    var _this = this;
-    _this.setState({current_user: {}});
-    _this.setState({token: ''});
-    _this.setState({logged_in: false});
+  _logoutUser = () => {
+    this.setState({current_user: {}});
+    this.setState({token: ''});
+    this.setState({logged_in: false});
   }
 
   render() {
@@ -83,21 +84,8 @@ export default class App extends React.Component {
 
         </Card>
         :
-        <View>
-          <Tasks current_user={this.state.current_user} token={this.state.token}/>
-          <Button
-            title='Log out'
-            buttonStyle={{
-                backgroundColor: 'red',
-                width: 300,
-                height: 45,
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5
-              }}
-              onPress={() => this._logoutUser()}
-
-          />
+        <View>        
+          <Tasks current_user={this.state.current_user} token={this.state.token} onLogoutUser={this._logoutUser}/>
         </View>
       }
        

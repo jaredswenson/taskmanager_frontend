@@ -28,7 +28,7 @@ export default class CreateAccount extends React.Component {
     }
     formBody = formBody.join("&");
 
-    fetch('http://localhost:3000/auth/register', {
+    fetch('http://10.0.1.117.xip.io:3000/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -56,7 +56,7 @@ export default class CreateAccount extends React.Component {
     }
     formBody = formBody.join("&");
 
-    fetch('http://localhost:3000/auth/login', {
+    fetch('http://10.0.1.117.xip.io:3000/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
