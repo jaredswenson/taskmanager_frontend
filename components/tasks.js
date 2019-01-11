@@ -1,8 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, Modal, TouchableHighlight, Alert, Dimensions } from 'react-native';
+import {Haptic} from 'expo';
 import { Card, Input, Button, Divider, Header } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
-import Carousel, { Pagination } from 'react-native-snap-carousel';
+import Carousel from 'react-native-snap-carousel';
 
 const sliderWidth = Dimensions.get('window').width;
 const itemHeight = Dimensions.get('window').height;
@@ -24,11 +25,12 @@ export default class Tasks extends React.Component {
       show_children: false,
       active_parent: 0,
       modalVisible: false,
-      completed_task: {},
+      current_task: {},
       listView: true,
-      activeSlide: 1
+      creating_task: false,
+      show_carousel: true,
+      slideIndex: 0
     };
-
     this._renderItem = this._renderItem.bind(this);
   }
 
@@ -72,7 +74,7 @@ export default class Tasks extends React.Component {
       'name': _this.state.name,
       'due_date': _this.state.due_date,
       'parent_id': _this.state.parent_id,
-      'time_estimate': _this.state.time_estimate,
+      'time_estimate': Number(_this.state.time_estimate),
       'is_completed': false,
       'total_time': 0,
       'recurring': false,
@@ -94,14 +96,33 @@ export default class Tasks extends React.Component {
       body: formBody
     })
     .then((response) => {
+      this.setState({show_carousel: false})
       this.setState({create_new_child: false});
       this.setState({create_new: false});
-      console.log(details)
       if(details.parent_id == 0){
         this.setState({parentTasks: this.state.parentTasks.concat([details])});
+        this.setState({slideIndex: this.state.parentTasks.length - 1})
+        console.log(this.state.parentTasks.length);
       }else{
         this.setState({childTasks: this.state.childTasks.concat([details])});
+        ///// reconfigure times & math
+        var totalTime = 0;
+        this.state.childTasks.map((childTask, index) => {
+          if(childTask.parent_id == details.parent_id){
+            totalTime = totalTime + childTask.time_estimate
+          }
+        });
+        this.state.parentTasks.map((parentTask, index) => {
+          if(parentTask.id == details.parent_id){
+            parentTask.total_time = totalTime;
+          }
+        });
+        this.setState({parentTasks: this.state.parentTasks});
       }
+      if(this.state.modalVisible){
+        this.setModalVisible(false, {}, false);
+      }
+      this.setState({show_carousel: true})
     })
   }
 
@@ -133,36 +154,32 @@ export default class Tasks extends React.Component {
           }
         })
       } else{
+        var currentParent = 0;
         this.state.childTasks.map((childTask, index) => {
           if(childTask.id == task.id){
+            console.log(childTask.name);
+            currentParent = childTask.parent_id;
             this.state.childTasks.splice(index, 1);
           }
-        })
+        });
+        ///// reconfigure times & math
+        var totalTime = 0;
+        this.state.childTasks.map((childTask, index) => {
+          if(childTask.parent_id == currentParent){
+            totalTime = totalTime + childTask.time_estimate
+          }
+        });
+        this.state.parentTasks.map((parentTask, index) => {
+          if(parentTask.id == currentParent){
+            parentTask.total_time = totalTime;
+          }
+        });
+        this.setState({parentTasks: this.state.parentTasks});
       }
       if(this.state.modalVisible){
         this.setModalVisible(false, {})
       }
     })
-  }
-
-  setCreateParentTask(){
-    this.setState({parent_id: 0})
-    if(this.state.create_new){
-      this.setState({create_new: false})
-    }else{
-      this.setState({create_new: true})
-    }
-  }
-
-  setCreateChildTask(parent_id){
-    this.setState({parent_id: parent_id});
-    this.setState({active_parent: parent_id})
-    this.setState({due_date: null});
-    if(this.state.create_new_child){
-      this.setState({create_new_child: false})
-    }else{
-      this.setState({create_new_child: true})
-    }
   }
 
   logoutUser(){
@@ -180,21 +197,44 @@ export default class Tasks extends React.Component {
     }
   }
 
-  setModalVisible(visible, task) {
+  setModalVisible(visible, task, creating_task, is_child) {
+    this.setState({current_task: task});
     this.setState({modalVisible: visible});
-    this.setState({completed_task: task});
+    this.setState({creating_task: creating_task});
+    if(is_child){
+      this.setState({parent_id: task.id});
+    }else{
+      this.setState({parent_id: 0});
+    }
   }
 
   daysRemaining(date){
-    var arr = date.split('/')
-    var year = arr[2];
-    var month = arr[0];
-    var day = arr[1];
+    var arr = date.split('-')
+    var year = arr[0];
+    var month = arr[1];
+    var day = arr[2];
     var formattedDate = new Date(year + '/' + month + '/' + day).getTime();
     var today = Date.now();
     var timeDiff = Math.abs(today - formattedDate);
     var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
     return diffDays
+  }
+
+  displayDate(date){
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    var arr = date.split('-')
+    var year = arr[0];
+    var month = parseInt(arr[1]) - 1;
+    var day = arr[2];
+    var displayDate = monthNames[month] + ' ' + day + ', ' + year;
+    return displayDate
+  }
+
+  snapEvent(index){
+    Haptic.notification();
+    this.setState({ slideIndex: index });
   }
 
   _renderItem (task, i) {
@@ -213,7 +253,7 @@ export default class Tasks extends React.Component {
               <Text style={{color: 'white'}}>{taskAgain.time_estimate}</Text>
             </View>
             <View style={{width: 100, height: 50, alignItems: 'center', borderBottomWidth: 0.5, borderColor: '#d6d7da'}}>
-              <Icon name='check' color='#7CFC00' size={25} onPress={() => this.setModalVisible(true, taskAgain)}/>
+              <Icon name='check' color='#7CFC00' size={25} onPress={() => this.setModalVisible(true, taskAgain, false, true)}/>
             </View>
           </View>: null
       )
@@ -222,12 +262,11 @@ export default class Tasks extends React.Component {
           <View>
               <Card containerStyle={{backgroundColor: '#8c9184', padding: 0, borderRadius: 5, height: 650}} key={i}>
                 <Header
-                  placement="left"
                   leftComponent={
-                    <Icon name='plus' color='#1ec0ff' size={30} onPress={() => this.setCreateChildTask(task.id)}/>
+                    <Icon name='plus' color='#1ec0ff' size={30} onPress={() => this.setModalVisible(true, task, true, true)}/>
                   }
                   centerComponent={{ text: task.name, style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
-                  rightComponent={<Icon name='check' color='#7CFC00' size={30} onPress={() => this.setModalVisible(true, task)}/>}
+                  rightComponent={<Icon name='check' color='#7CFC00' size={30} onPress={() => this.setModalVisible(true, task, false, true)}/>}
                   containerStyle={{
                     backgroundColor: '#1a1a1a',
                     paddingTop: 0,
@@ -257,33 +296,8 @@ export default class Tasks extends React.Component {
                     }
                   </View>
                 </View>
-                {this.state.create_new_child && task.id == this.state.active_parent?
-                    <View style={{marginTop:49, alignItems: 'center'}}>
-                      <TextInput
-                        placeholder='Name'
-                        onChangeText={(name) => this.setState({name})}
-                        style={{height: 40, width: 300, borderBottomColor: '#d6d7da', borderBottomWidth: 0.5, color: 'white'}}
-                      />
-                      <TextInput
-                        placeholder='Estimated Hours'
-                        onChangeText={(time_estimate) => this.setState({time_estimate})}
-                        style={{height: 40, width: 300, borderBottomColor: '#d6d7da', borderBottomWidth: 0.5, color: 'white'}}
-                      /> 
-                      <Divider style={{ height: 20, backgroundColor: '#8c9184' }} />
-                      <Button
-                        title='Save'
-                        buttonStyle={{
-                        width: 300,
-                        height: 45,
-                        borderColor: "transparent",
-                        borderWidth: 0,
-                        borderRadius: 5
-                      }}
-                      onPress={() => this._saveTask()}/>
-                      </View> : null
-                    }
                     <View style={{alignItems: 'center', borderBottomWidth: 0.5, borderColor: 'black', marginTop: 70}}>
-                      <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold', padding: 5}}>Things to get done by: {task.due_date}</Text>
+                      <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold', padding: 5}}>{this.displayDate(task.due_date)}</Text>
                     </View>
                     <ScrollView>
                       {children}
@@ -297,11 +311,7 @@ export default class Tasks extends React.Component {
     return (
       <View>
         <Header
-          leftComponent={
-            !this.state.create_new ? 
-            <Icon name='plus' color='#1ec0ff' size={30} onPress={() => this.setCreateParentTask()}/>:
-            <Icon name='minus' color='#1ec0ff' size={30} onPress={() => this.setCreateParentTask()}/>
-          }
+          leftComponent={<Icon name='plus' color='#1ec0ff' size={30} onPress={() => this.setModalVisible(true, {}, true, false)}/>}
           centerComponent={{ text: 'TaskManager', style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
           rightComponent={<Icon name='logout' color='white' size={30} onPress={() => this.logoutUser()}/>}
           containerStyle={{
@@ -311,56 +321,32 @@ export default class Tasks extends React.Component {
             paddingTop: 0
           }}
         />
-        {this.state.create_new ?
-            <Card containerStyle={{backgroundColor: '#8c9184', marginTop: '5%'}}>
-              <TextInput
-                placeholder='Name'
-                onChangeText={(name) => this.setState({name})}
-                style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
-              />
-              <TextInput
-                placeholder='MM/DD/YYYY'
-                onChangeText={(due_date) => this.setState({due_date})}
-                style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
-              />
-              <Divider style={{ height: 20, backgroundColor: '#8c9184' }} />
-              <Button
-                title='Save'
-                buttonStyle={{
-                width: 300,
-                height: 45,
-                borderColor: "transparent",
-                borderWidth: 0,
-                borderRadius: 5
-              }}
-              onPress={() => this._saveTask()}
-
+        {
+          this.state.show_carousel ?
+            <Carousel
+              ref={(c) => { this._carousel = c; }}
+              firstItem={this.state.slideIndex}
+              data={this.state.parentTasks}
+              renderItem={this._renderItem}
+              layout={'default'} 
+              sliderWidth={sliderWidth}
+              itemWidth={sliderWidth}
+              itemHeight={itemHeight}
+              onSnapToItem={(index) => this.snapEvent(index) }
             />
-            </Card>:null
+          :null
         }
-      <Carousel
-        ref={(c) => { this._carousel = c; }}
-        data={this.state.parentTasks}
-        renderItem={this._renderItem}
-        layout={'default'} 
-        sliderWidth={sliderWidth}
-        itemWidth={sliderWidth}
-        itemHeight={itemHeight}
-        loop={true}
-        onSnapToItem={(index) => this.setState({ activeSlide: index }) }
-      />
-      <Pagination
-        dotsLength={this.state.parentTasks.length}
-        activeDotIndex={this.state.activeSlide}
-      />
+
 
       <Modal
           animationType="slide"
           transparent={true}
           visible={this.state.modalVisible}
           >
-          <View style={{marginTop: 350, height:200}}>
-            <View alignItems='center'>
+          <View style={{marginTop: 150, height:200}}>
+            {
+              !this.state.creating_task ?
+              <View alignItems='center'>
               <Card>
                 <Button
                 icon={
@@ -370,7 +356,7 @@ export default class Tasks extends React.Component {
                       color='white'
                     />
                   }
-                  title={this.state.completed_task.name}
+                  title={this.state.current_task.name}
                   buttonStyle={{
                   width: 300,
                   height: 45,
@@ -379,31 +365,159 @@ export default class Tasks extends React.Component {
                   borderRadius: 5,
                   backgroundColor: '#7CFC00'
                 }}
-                onPress={() => this._completeTask(this.state.completed_task)}
+                onPress={() => this._completeTask(this.state.current_task)}
 
                 />
                 <Divider style={{ height: 20, backgroundColor: '#fff' }} />
                 <Button
-                icon={
-                    <Icon
-                      name='back'
-                      size={15}
-                      color='white'
-                    />
-                  }
-                  title='Close'
-                  buttonStyle={{
-                  width: 300,
-                  height: 45,
-                  borderColor: "transparent",
-                  borderWidth: 0,
-                  borderRadius: 5,
-                  backgroundColor: 'orange'
-                }}
-                onPress={() => this.setModalVisible(false, {})}
+                  icon={
+                      <Icon
+                        name='edit'
+                        size={15}
+                        color='white'
+                      />
+                    }
+                    title='Time Remaining'
+                    buttonStyle={{
+                    width: 300,
+                    height: 45,
+                    borderColor: "transparent",
+                    borderWidth: 0,
+                    borderRadius: 5,
+                    backgroundColor: 'orange'
+                  }}
+                  onPress={() => this.setModalVisible(false, {}, false)}
+                />
+                <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+                <Button
+                  icon={
+                      <Icon
+                        name='back'
+                        size={15}
+                        color='white'
+                      />
+                    }
+                    title='Close'
+                    buttonStyle={{
+                    width: 300,
+                    height: 45,
+                    borderColor: "transparent",
+                    borderWidth: 0,
+                    borderRadius: 5,
+                    backgroundColor: 'orange'
+                  }}
+                  onPress={() => this.setModalVisible(false, {}, false)}
                 />
               </Card>
+            </View>:
+            <View alignItems='center'>
+              <Card>
+                <View style={{alignItems: 'center'}}>
+                  {
+                    this.state.parent_id == 0 ?
+                      <Text>New Task</Text>
+                    : 
+                      <Text>New Task for {this.state.current_task.name}</Text>
+
+                  }
+                  {
+                    this.state.parent_id == 0 ?
+                    <Card containerStyle={{backgroundColor: '#fff', marginTop: '5%'}}>
+                      <TextInput
+                        placeholder='Name'
+                        onChangeText={(name) => this.setState({name})}
+                        style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+                      />
+                      <TextInput
+                        placeholder='MM/DD/YYYY'
+                        onChangeText={(due_date) => this.setState({due_date})}
+                        style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+                      />
+                      <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+                      <Button
+                        title='Save'
+                        buttonStyle={{
+                          width: 300,
+                          height: 45,
+                          borderColor: "transparent",
+                          borderWidth: 0,
+                          borderRadius: 5
+                        }}
+                        onPress={() => this._saveTask()}
+
+                      />
+                      <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+                      <Button
+                        icon={
+                            <Icon
+                              name='back'
+                              size={15}
+                              color='white'
+                            />
+                          }
+                          title='Cancel'
+                          buttonStyle={{
+                          width: 300,
+                          height: 45,
+                          borderColor: "transparent",
+                          borderWidth: 0,
+                          borderRadius: 5,
+                          backgroundColor: 'orange'
+                        }}
+                        onPress={() => this.setModalVisible(false, {}, false)}
+                      />
+                    </Card>
+                    :
+                    <Card>
+                      <TextInput
+                        placeholder='Name'
+                        onChangeText={(name) => this.setState({name})}
+                        style={{height: 40, width: 300, borderBottomColor: 'white', borderBottomWidth: 0.5, color: 'black'}}
+                      />
+                      <TextInput
+                        placeholder='Estimated Hours'
+                        onChangeText={(time_estimate) => this.setState({time_estimate})}
+                        style={{height: 40, width: 300, borderBottomColor: 'white', borderBottomWidth: 0.5, color: 'black'}}
+                      /> 
+                      <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+                      <Button
+                        title='Save'
+                        buttonStyle={{
+                        width: 300,
+                        height: 45,
+                        borderColor: "transparent",
+                        borderWidth: 0,
+                        borderRadius: 5
+                      }}
+                      onPress={() => this._saveTask()}/>
+                      <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+                      <Button
+                        icon={
+                            <Icon
+                              name='back'
+                              size={15}
+                              color='white'
+                            />
+                          }
+                          title='Cancel'
+                          buttonStyle={{
+                          width: 300,
+                          height: 45,
+                          borderColor: "transparent",
+                          borderWidth: 0,
+                          borderRadius: 5,
+                          backgroundColor: 'orange'
+                        }}
+                        onPress={() => this.setModalVisible(false, {}, false)}
+                      />
+                    </Card>
+                  }
+
+                </View>
+              </Card>
             </View>
+            }
+            
           </View>
         </Modal>
      </View>

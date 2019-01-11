@@ -54,14 +54,17 @@ export default class Login extends React.Component {
   render() {
     return (
       <View>
-        <Input
+        <TextInput
           placeholder='Email'
           autoCapitalize='none'
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
           onChangeText={(email) => this.setState({email})}
         />
-        <Input
+        <TextInput
           placeholder='Password'
           autoCapitalize='none'
+          secureTextEntry={true}
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
           onChangeText={(password) => this.setState({password})}
         />
         <Divider style={{ height: 20, backgroundColor: '#fff' }} />

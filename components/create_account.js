@@ -79,24 +79,30 @@ export default class CreateAccount extends React.Component {
   render() {
     return (
       <View >
-        <Input
+        <TextInput
           placeholder='Name'
           autoCapitalize='none'
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
           onChangeText={(name) => this.setState({name})}
         />
-        <Input
+        <TextInput
           placeholder='Email'
           autoCapitalize='none'
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
           onChangeText={(email) => this.setState({email})}
         />
-        <Input
+        <TextInput
           placeholder='Password'
           autoCapitalize='none'
+          secureTextEntry={true}
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
           onChangeText={(password) => this.setState({password})}
         />
-        <Input
+        <TextInput
           placeholder='Confirm Password'
           autoCapitalize='none'
+          secureTextEntry={true}
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
           onChangeText={(confirmPassword) => this.setState({confirmPassword})}
         />
         <Divider style={{ height: 20, backgroundColor: '#fff' }} />
