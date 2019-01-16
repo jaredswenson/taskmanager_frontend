@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, Modal, TouchableHighlight, Alert, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, Modal, TouchableHighlight, Alert, Dimensions, Picker } from 'react-native';
 import {Haptic} from 'expo';
 import { Card, Input, Button, Divider, Header } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Carousel from 'react-native-snap-carousel';
+import DatePicker from 'react-native-datepicker'
 
 const sliderWidth = Dimensions.get('window').width;
 const itemHeight = Dimensions.get('window').height;
@@ -16,6 +17,9 @@ export default class Tasks extends React.Component {
       create_new_child: false,
       name: '',
       due_date: '',
+      month: '',
+      date: '',
+      year: '',
       parent_id: 0,
       time_estimate: 0,
       recurring: false,
@@ -29,13 +33,28 @@ export default class Tasks extends React.Component {
       listView: true,
       creating_task: false,
       show_carousel: true,
-      slideIndex: 0
+      slideIndex: 0,
+      todays_date: ''
+
     };
     this._renderItem = this._renderItem.bind(this);
   }
 
   componentDidMount(){
     var _this = this;
+    var date = new Date();
+    var dd = date.getDate();
+    var mm = date.getMonth() + 1; //January is 0!
+    var yyyy = date.getFullYear();
+    if (dd < 10) {
+      dd = '0' + dd;
+    }
+
+    if (mm < 10) {
+      mm = '0' + mm;
+    }
+    var today = yyyy + '-' + mm + '-' + dd;
+    _this.setState({todays_date: today});
     _this._getTasks();
   }
 
@@ -102,7 +121,6 @@ export default class Tasks extends React.Component {
       if(details.parent_id == 0){
         this.setState({parentTasks: this.state.parentTasks.concat([details])});
         this.setState({slideIndex: this.state.parentTasks.length - 1})
-        console.log(this.state.parentTasks.length);
       }else{
         this.setState({childTasks: this.state.childTasks.concat([details])});
         ///// reconfigure times & math
@@ -372,26 +390,6 @@ export default class Tasks extends React.Component {
                 <Button
                   icon={
                       <Icon
-                        name='edit'
-                        size={15}
-                        color='white'
-                      />
-                    }
-                    title='Time Remaining'
-                    buttonStyle={{
-                    width: 300,
-                    height: 45,
-                    borderColor: "transparent",
-                    borderWidth: 0,
-                    borderRadius: 5,
-                    backgroundColor: 'orange'
-                  }}
-                  onPress={() => this.setModalVisible(false, {}, false)}
-                />
-                <Divider style={{ height: 20, backgroundColor: '#fff' }} />
-                <Button
-                  icon={
-                      <Icon
                         name='back'
                         size={15}
                         color='white'
@@ -426,14 +424,30 @@ export default class Tasks extends React.Component {
                       <TextInput
                         placeholder='Name'
                         onChangeText={(name) => this.setState({name})}
-                        style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+                        style={{height: 40, borderBottomColor: '#8c9184', borderBottomWidth: 1}}
                       />
-                      <TextInput
-                        placeholder='MM/DD/YYYY'
-                        onChangeText={(due_date) => this.setState({due_date})}
-                        style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+                      <DatePicker
+                        style={{width: 300, marginTop:10, marginBottom:10}}
+                        date={this.state.due_date}
+                        mode="date"
+                        placeholder="select date"
+                        format="YYYY-MM-DD"
+                        minDate= "2019-01-16"
+                        maxDate="2050-12-31"
+                        confirmBtnText="Confirm"
+                        cancelBtnText="Cancel"
+                        customStyles={{
+                          dateIcon: {
+                            display: 'none'
+                          },
+                          dateInput: {
+                            marginTop: 10,
+                            marginBottom: 10
+                          }
+                          // ... You can check the source to find the other keys.
+                        }}
+                        onDateChange={(date) => {this.setState({due_date: date})}}
                       />
-                      <Divider style={{ height: 20, backgroundColor: '#fff' }} />
                       <Button
                         title='Save'
                         buttonStyle={{
