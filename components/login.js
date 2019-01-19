@@ -70,12 +70,14 @@ export default class Login extends React.Component {
         <Divider style={{ height: 20, backgroundColor: '#fff' }} />
         <Button
           title='Log in'
+          raised
           buttonStyle={{
               width: 300,
               height: 45,
               borderColor: "transparent",
               borderWidth: 0,
-              borderRadius: 5
+              borderRadius: 5,
+              backgroundColor: '#1ec0ff'
             }}
             onPress={() => this._loginUser()}
 

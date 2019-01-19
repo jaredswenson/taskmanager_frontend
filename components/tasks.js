@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, Modal, TouchableHighlight, Alert, Dimensions, Picker } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, Modal, TouchableHighlight, Alert, Dimensions, FlatList } from 'react-native';
 import {Haptic} from 'expo';
 import { Card, Input, Button, Divider, Header } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
-import Carousel from 'react-native-snap-carousel';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 import DatePicker from 'react-native-datepicker'
 
 const sliderWidth = Dimensions.get('window').width;
@@ -341,6 +341,28 @@ export default class Tasks extends React.Component {
         );
     }
 
+    get pagination () {
+        return (
+            <Pagination
+              dotsLength={this.state.parentTasks.length}
+              activeDotIndex={this.state.slideIndex}
+              containerStyle={{ backgroundColor: 'white' }}
+              dotStyle={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: 5,
+                  marginHorizontal: 8,
+                  backgroundColor: 'black'
+              }}
+              inactiveDotStyle={{
+                  // Define styles for inactive dots here
+              }}
+              inactiveDotOpacity={0.4}
+              inactiveDotScale={0.6}
+            />
+        );
+    }
+
   render() {
     return (
       <View>
@@ -357,17 +379,21 @@ export default class Tasks extends React.Component {
         />
         {
           this.state.show_carousel ?
-            <Carousel
-              ref={(c) => { this._carousel = c; }}
-              firstItem={this.state.slideIndex}
-              data={this.state.parentTasks}
-              renderItem={this._renderItem}
-              layout={'default'} 
-              sliderWidth={sliderWidth}
-              itemWidth={sliderWidth}
-              itemHeight={itemHeight}
-              onSnapToItem={(index) => this.snapEvent(index) }
-            />
+            <View>
+              { this.pagination }
+              <Carousel
+                ref={(c) => { this._carousel = c; }}
+                firstItem={this.state.slideIndex}
+                data={this.state.parentTasks}
+                renderItem={this._renderItem}
+                layout={'default'} 
+                sliderWidth={sliderWidth}
+                itemWidth={sliderWidth}
+                itemHeight={itemHeight}
+                onSnapToItem={(index) => this.snapEvent(index) }
+              />
+              
+            </View>
           :null
         }
 

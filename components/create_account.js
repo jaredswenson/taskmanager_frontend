@@ -127,7 +127,9 @@ export default class CreateAccount extends React.Component {
                 height: 45,
                 borderColor: "transparent",
                 borderWidth: 0,
-                borderRadius: 5
+                borderRadius: 5,
+                backgroundColor: '#1ec0ff'
+
               }}
               onPress={() => this._createUser()}
 
