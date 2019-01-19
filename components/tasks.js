@@ -7,7 +7,8 @@ import Carousel from 'react-native-snap-carousel';
 import DatePicker from 'react-native-datepicker'
 
 const sliderWidth = Dimensions.get('window').width;
-const itemHeight = Dimensions.get('window').height;
+// const itemHeight = Dimensions.get('window').height;
+const itemHeight = 300;
 
 export default class Tasks extends React.Component {
   constructor(props) {
@@ -34,7 +35,9 @@ export default class Tasks extends React.Component {
       creating_task: false,
       show_carousel: true,
       slideIndex: 0,
-      todays_date: ''
+      todays_date: '',
+      noTasks: false,
+      taskPicker: true,
 
     };
     this._renderItem = this._renderItem.bind(this);
@@ -81,6 +84,11 @@ export default class Tasks extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
+      console.log(responseJson.parentTasks)
+      if(responseJson.parentTasks.length <= 0){
+        _this.setState({noTasks: true});
+        _this.setModalVisible(true, {}, true, false);
+      }
       _this.setState({childTasks: responseJson.childTasks});
       _this.setState({parentTasks: responseJson.parentTasks});
     })
@@ -169,15 +177,25 @@ export default class Tasks extends React.Component {
         this.state.parentTasks.map((parentTask, index) => {
           if(parentTask.id == task.id){
             this.state.parentTasks.splice(index, 1);
+            if(this.state.parentTasks.length <= 0){
+              _this.setState({noTasks: true});
+              _this.setModalVisible(true, {}, true, false);
+            }else{
+              if(this.state.modalVisible){
+                this.setModalVisible(false, {})
+              }
+            }
           }
         })
       } else{
         var currentParent = 0;
         this.state.childTasks.map((childTask, index) => {
           if(childTask.id == task.id){
-            console.log(childTask.name);
             currentParent = childTask.parent_id;
             this.state.childTasks.splice(index, 1);
+            if(this.state.modalVisible){
+              this.setModalVisible(false, {})
+            }
           }
         });
         ///// reconfigure times & math
@@ -194,9 +212,7 @@ export default class Tasks extends React.Component {
         });
         this.setState({parentTasks: this.state.parentTasks});
       }
-      if(this.state.modalVisible){
-        this.setModalVisible(false, {})
-      }
+
     })
   }
 
@@ -330,7 +346,7 @@ export default class Tasks extends React.Component {
       <View>
         <Header
           leftComponent={<Icon name='plus' color='#1ec0ff' size={30} onPress={() => this.setModalVisible(true, {}, true, false)}/>}
-          centerComponent={{ text: 'TaskManager', style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
+          centerComponent={{ text: 'Donezo!', style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
           rightComponent={<Icon name='logout' color='white' size={30} onPress={() => this.logoutUser()}/>}
           containerStyle={{
             backgroundColor: '#1a1a1a',
@@ -413,6 +429,12 @@ export default class Tasks extends React.Component {
                 <View style={{alignItems: 'center'}}>
                   {
                     this.state.parent_id == 0 ?
+                      this.state.noTasks ?
+                      <View>
+                        <Text>Welcome to Donezo!</Text>
+                        <Text>What is your next big event?</Text>
+                      </View>
+                      :
                       <Text>New Task</Text>
                     : 
                       <Text>New Task for {this.state.current_task.name}</Text>
@@ -425,7 +447,7 @@ export default class Tasks extends React.Component {
                         placeholder='Name'
                         onChangeText={(name) => this.setState({name})}
                         style={{height: 40, borderBottomColor: '#8c9184', borderBottomWidth: 1}}
-                      />
+                      />                      
                       <DatePicker
                         style={{width: 300, marginTop:10, marginBottom:10}}
                         date={this.state.due_date}
@@ -490,6 +512,7 @@ export default class Tasks extends React.Component {
                       />
                       <TextInput
                         placeholder='Estimated Hours'
+                        keyboardType = 'numeric'
                         onChangeText={(time_estimate) => this.setState({time_estimate})}
                         style={{height: 40, width: 300, borderBottomColor: 'white', borderBottomWidth: 0.5, color: 'black'}}
                       /> 

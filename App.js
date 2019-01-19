@@ -46,7 +46,7 @@ export default class App extends React.Component {
       {
         !this.state.logged_in ?
         <Card containerStyle={{backgroundColor: '#fff', marginTop: '25%'}} >
-          <Text>Login to Task Manager!</Text>
+          <Text>Login to Donezo!</Text>
           {
             !this.state.create_user ?
               <Login onSetUser={this.setUser}/>
@@ -59,7 +59,7 @@ export default class App extends React.Component {
             <Button
             title='Sign Up'
             buttonStyle={{
-              backgroundColor: "green",
+              backgroundColor: "#7CFC00",
               width: 300,
               height: 45,
               borderColor: "transparent",
@@ -97,7 +97,7 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: 'red',
     // marginTop:25%,
     alignItems: 'center',
     justifyContent: 'center',
