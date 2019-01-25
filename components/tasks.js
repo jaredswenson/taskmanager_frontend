@@ -292,6 +292,10 @@ export default class Tasks extends React.Component {
           </View>: null
       )
     })
+    var blah = [];
+    var length = this.state.childTasks.map((taskAgain, k) => {
+      taskAgain.parent_id == task.id ? blah.push(taskAgain):null;
+    })
       return (
           <View>
               <Card containerStyle={{backgroundColor: '#8c9184', padding: 0, borderRadius: 5, height: 650}} key={i}>
@@ -333,9 +337,22 @@ export default class Tasks extends React.Component {
                     <View style={{alignItems: 'center', borderBottomWidth: 0.5, borderColor: 'black', marginTop: 70}}>
                       <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold', padding: 5}}>{this.displayDate(task.due_date)}</Text>
                     </View>
-                    <ScrollView>
-                      {children}
+                    <ScrollView style={{height:400}}>
+                      {
+                        blah.length >= 1 ?
+                        children:
+                        <View style={{alignItems: 'center'}}>
+                          <Button
+                            raised
+                            icon={{name: 'add', color: 'white'}}
+                            title='Add A Task!' 
+                            onPress={() => this.setModalVisible(true, task, true, true)}
+                            style={{marginTop: 10}}
+                            />
+                        </View>
+                      }
                     </ScrollView>
+                { this.pagination }
               </Card>
           </View>
         );
@@ -346,13 +363,13 @@ export default class Tasks extends React.Component {
             <Pagination
               dotsLength={this.state.parentTasks.length}
               activeDotIndex={this.state.slideIndex}
-              containerStyle={{ backgroundColor: 'white' }}
+              containerStyle={{ backgroundColor: '#8c9184' }}
               dotStyle={{
                   width: 5,
                   height: 5,
                   borderRadius: 5,
-                  marginHorizontal: 8,
-                  backgroundColor: 'black'
+                  marginHorizontal: 1,
+                  backgroundColor: 'white'
               }}
               inactiveDotStyle={{
                   // Define styles for inactive dots here
@@ -380,7 +397,6 @@ export default class Tasks extends React.Component {
         {
           this.state.show_carousel ?
             <View>
-              { this.pagination }
               <Carousel
                 ref={(c) => { this._carousel = c; }}
                 firstItem={this.state.slideIndex}
