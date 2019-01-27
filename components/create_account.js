@@ -28,14 +28,17 @@ export default class CreateAccount extends React.Component {
     }
     formBody = formBody.join("&");
 
-    fetch('http://10.0.1.117.xip.io:3000/auth/register', {
+    fetch('https://swensondonezo.herokuapp.com/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
       },
       body: formBody
     })
-    .then((response) => response.json())
+    .then((response) => {
+      console.log(response)
+      response.json()}
+      )
     .then((responseJson) => {
       _this._loginUser();
     });
@@ -56,7 +59,7 @@ export default class CreateAccount extends React.Component {
     }
     formBody = formBody.join("&");
 
-    fetch('http://10.0.1.117.xip.io:3000/auth/login', {
+    fetch('https://swensondonezo.herokuapp.com/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'

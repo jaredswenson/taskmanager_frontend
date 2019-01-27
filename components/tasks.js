@@ -74,7 +74,7 @@ export default class Tasks extends React.Component {
       formBody.push(encodedKey + "=" + encodedValue);
     }
     formBody = formBody.join("&");
-    fetch('http://10.0.1.117.xip.io:3000/task/get', {
+    fetch('https://swensondonezo.herokuapp.com/task/get', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -114,7 +114,7 @@ export default class Tasks extends React.Component {
       formBody.push(encodedKey + "=" + encodedValue);
     }
     formBody = formBody.join("&");
-    fetch('http://10.0.1.117.xip.io:3000/task/create', {
+    fetch('https://swensondonezo.herokuapp.com/task/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -164,7 +164,7 @@ export default class Tasks extends React.Component {
       formBody.push(encodedKey + "=" + encodedValue);
     }
     formBody = formBody.join("&");
-    fetch('http://10.0.1.117.xip.io:3000/task/complete', {
+    fetch('https://swensondonezo.herokuapp.com/task/complete', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',

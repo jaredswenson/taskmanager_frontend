@@ -6,8 +6,8 @@ export default class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      email: 'jswen15@gmail.com',
-      password: 'password',
+      email: '',
+      password: '',
       user: {},
       token: ''
     };
@@ -26,7 +26,7 @@ export default class Login extends React.Component {
       formBody.push(encodedKey + "=" + encodedValue);
     }
     formBody = formBody.join("&");
-    fetch('http://10.0.1.117.xip.io:3000/auth/login', {
+    fetch('https://swensondonezo.herokuapp.com/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
