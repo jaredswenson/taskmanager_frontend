@@ -292,13 +292,13 @@ export default class Tasks extends React.Component {
           </View>: null
       )
     })
-    var blah = [];
-    var length = this.state.childTasks.map((taskAgain, k) => {
-      taskAgain.parent_id == task.id ? blah.push(taskAgain):null;
+    var lengthArray = [];
+    this.state.childTasks.map((taskAgain, k) => {
+      taskAgain.parent_id == task.id ? lengthArray.push(taskAgain):null;
     })
       return (
           <View>
-              <Card containerStyle={{backgroundColor: '#8c9184', padding: 0, borderRadius: 5, height: 650}} key={i}>
+              <Card containerStyle={{backgroundColor: '#8c9184', padding: 0, borderRadius: 5}} key={i}>
                 <Header
                   leftComponent={
                     <Icon name='plus' color='#1ec0ff' size={30} onPress={() => this.setModalVisible(true, task, true, true)}/>
@@ -306,7 +306,7 @@ export default class Tasks extends React.Component {
                   centerComponent={{ text: task.name, style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
                   rightComponent={<Icon name='check' color='#7CFC00' size={30} onPress={() => this.setModalVisible(true, task, false, true)}/>}
                   containerStyle={{
-                    backgroundColor: '#1a1a1a',
+                    backgroundColor: '#2b313a',
                     paddingTop: 0,
                     borderRadius: 5
                   }}
@@ -337,9 +337,9 @@ export default class Tasks extends React.Component {
                     <View style={{alignItems: 'center', borderBottomWidth: 0.5, borderColor: 'black', marginTop: 70}}>
                       <Text style={{color: 'white', fontSize: 20, fontWeight: 'bold', padding: 5}}>{this.displayDate(task.due_date)}</Text>
                     </View>
-                    <ScrollView style={{height:400}}>
+                    <ScrollView style={{height:375}}>
                       {
-                        blah.length >= 1 ?
+                        lengthArray.length >= 1 ?
                         children:
                         <View style={{alignItems: 'center'}}>
                           <Button
@@ -352,7 +352,7 @@ export default class Tasks extends React.Component {
                         </View>
                       }
                     </ScrollView>
-                { this.pagination }
+                
               </Card>
           </View>
         );
@@ -363,12 +363,12 @@ export default class Tasks extends React.Component {
             <Pagination
               dotsLength={this.state.parentTasks.length}
               activeDotIndex={this.state.slideIndex}
-              containerStyle={{ backgroundColor: '#8c9184' }}
+              containerStyle={{ backgroundColor: 'rgba(0, 0, 0, 0)'}}
               dotStyle={{
                   width: 5,
                   height: 5,
                   borderRadius: 5,
-                  marginHorizontal: 1,
+                  // marginHorizontal: 1,
                   backgroundColor: 'white'
               }}
               inactiveDotStyle={{
@@ -388,15 +388,17 @@ export default class Tasks extends React.Component {
           centerComponent={{ text: 'Donezo!', style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
           rightComponent={<Icon name='logout' color='white' size={30} onPress={() => this.logoutUser()}/>}
           containerStyle={{
-            backgroundColor: '#1a1a1a',
+            backgroundColor: 'rgba(0, 0, 0, 0)',
             justifyContent: 'space-around',
-            marginTop:35,
-            paddingTop: 0
+            marginTop:0,
+            paddingTop: 20,
+            borderBottomWidth:0
           }}
         />
         {
           this.state.show_carousel ?
             <View>
+              { this.pagination }
               <Carousel
                 ref={(c) => { this._carousel = c; }}
                 firstItem={this.state.slideIndex}
@@ -408,7 +410,6 @@ export default class Tasks extends React.Component {
                 itemHeight={itemHeight}
                 onSnapToItem={(index) => this.snapEvent(index) }
               />
-              
             </View>
           :null
         }

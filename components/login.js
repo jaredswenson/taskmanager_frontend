@@ -6,8 +6,8 @@ export default class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      email: '',
-      password: '',
+      email: 'jswen15@gmail.com',
+      password: 'password',
       user: {},
       token: ''
     };
@@ -57,17 +57,19 @@ export default class Login extends React.Component {
         <TextInput
           placeholder='Email'
           autoCapitalize='none'
-          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+          placeholderTextColor='#fff'
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1, color: '#fff'}}
           onChangeText={(email) => this.setState({email})}
         />
         <TextInput
           placeholder='Password'
           autoCapitalize='none'
+          placeholderTextColor='#fff'
           secureTextEntry={true}
-          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1, color: '#fff'}}
           onChangeText={(password) => this.setState({password})}
         />
-        <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+        <Divider style={{ height: 20, backgroundColor: 'rgba(52, 52, 52, 0.1)' }} />
         <Button
           title='Log in'
           raised

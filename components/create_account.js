@@ -85,30 +85,34 @@ export default class CreateAccount extends React.Component {
         <TextInput
           placeholder='Name'
           autoCapitalize='none'
-          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+          placeholderTextColor='#fff'
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1, color: '#fff'}}
           onChangeText={(name) => this.setState({name})}
         />
         <TextInput
           placeholder='Email'
           autoCapitalize='none'
-          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+          placeholderTextColor='#fff'
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1, color: '#fff'}}
           onChangeText={(email) => this.setState({email})}
         />
         <TextInput
           placeholder='Password'
           autoCapitalize='none'
+          placeholderTextColor='#fff'
           secureTextEntry={true}
-          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1, color: '#fff'}}
           onChangeText={(password) => this.setState({password})}
         />
         <TextInput
           placeholder='Confirm Password'
           autoCapitalize='none'
+          placeholderTextColor='#fff'
           secureTextEntry={true}
-          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1}}
+          style={{height: 40, borderBottomColor: 'white', borderBottomWidth: 1, color: '#fff'}}
           onChangeText={(confirmPassword) => this.setState({confirmPassword})}
         />
-        <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+        <Divider style={{ height: 20, backgroundColor: 'rgba(52, 52, 52, 0.1)' }} />
         {
           this.state.password != this.state.confirmPassword ?
           <Button

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ImageBackground, StatusBar } from 'react-native';
 import { Card, Button, Divider, Header } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -42,56 +42,60 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View styles={styles.container}>
-      {
-        !this.state.logged_in ?
-        <Card containerStyle={{backgroundColor: '#fff', marginTop: '25%'}} >
-          <Text>Login to Donezo!</Text>
-          {
-            !this.state.create_user ?
-              <Login onSetUser={this.setUser}/>
-            :
-              <CreateAccount onSetUser={this.setUser}/>
-          }
-            <Divider style={{ height: 20, backgroundColor: '#fff' }} />
-          {
-            !this.state.create_user ?
+      <ImageBackground source={require("./assets/blue.jpg")} style={{width: null, height: null, flex: 1, resizeMode: 'center'}}>
+      <StatusBar backgroundColor="#2b313a" barStyle="light-content" />
+        <View styles={styles.container}>
+        {
+          !this.state.logged_in ?
+          <Card containerStyle={{backgroundColor: 'rgba(0, 0, 0, 0)', marginTop: '25%', borderWidth: 0}} >
+            <Text>Login to Donezo!</Text>
+            {
+              !this.state.create_user ?
+                <Login onSetUser={this.setUser}/>
+              :
+                <CreateAccount onSetUser={this.setUser}/>
+            }
+              <Divider style={{ height: 20, backgroundColor: 'rgba(0, 0, 0, 0)' }} />
+            {
+              !this.state.create_user ?
+              <Button
+              title='Sign Up'
+              buttonStyle={{
+                backgroundColor: "#7CFC00",
+                width: 300,
+                height: 45,
+                borderColor: "transparent",
+                borderWidth: 0,
+                borderRadius: 5
+              }}
+              onPress={() => this.setCreateUser()}
+            /> :
             <Button
-            title='Sign Up'
-            buttonStyle={{
-              backgroundColor: "#7CFC00",
-              width: 300,
-              height: 45,
-              borderColor: "transparent",
-              borderWidth: 0,
-              borderRadius: 5
-            }}
-            onPress={() => this.setCreateUser()}
-          /> :
-          <Button
-            title='Already have an account?'
-            color='#fff'
-            raised
-            buttonStyle={{
-              backgroundColor: "transparent",
-              width: 300,
-              height: 45,
-              borderColor: "transparent",
-              borderWidth: 1,
-              borderRadius: 5,
-            }}
-            onPress={() => this.setCreateUser()}
-          />
-          }     
+              title='Already have an account?'
+              color='#fff'
+              raised
+              buttonStyle={{
+                backgroundColor: "transparent",
+                width: 300,
+                height: 45,
+                borderColor: "transparent",
+                borderWidth: 1,
+                borderRadius: 5,
+              }}
+              onPress={() => this.setCreateUser()}
+            />
+            }     
 
-        </Card>
-        :
-        <View>        
-          <Tasks current_user={this.state.current_user} token={this.state.token} onLogoutUser={this._logoutUser}/>
+          </Card>
+          :
+          <View>        
+            <Tasks current_user={this.state.current_user} token={this.state.token} onLogoutUser={this._logoutUser}/>
+          </View>
+        }
+         
         </View>
-      }
-       
-      </View>
+      </ImageBackground>
+      
     );
   }
 }
