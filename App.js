@@ -69,7 +69,8 @@ export default class App extends React.Component {
                 borderRadius: 5
               }}
               onPress={() => this.setCreateUser()}
-            /> :
+            /> 
+            :
             <Button
               title='Already have an account?'
               color='#fff'
