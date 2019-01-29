@@ -84,7 +84,6 @@ export default class Tasks extends React.Component {
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      console.log(responseJson.parentTasks)
       if(responseJson.parentTasks.length <= 0){
         _this.setState({noTasks: true});
         _this.setModalVisible(true, {}, true, false);
@@ -216,6 +215,42 @@ export default class Tasks extends React.Component {
     })
   }
 
+  _updateTask = async (task) => {
+    var _this = this;
+    var details = {
+      'task_id': task.id,
+      'due_date': _this.state.due_date,
+      'time_estimate': _this.state.time_estimate,
+      'name': _this.state.name
+    };    var formBody = [];
+    for (var property in details) {
+      var encodedKey = encodeURIComponent(property);
+      var encodedValue = encodeURIComponent(details[property]);
+      formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
+    fetch('http://10.0.1.117.xip.io:3000/task/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'authorization': _this.props.token
+      },
+      body: formBody
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      console.log(responseJson);
+      for (var i = 0; i < _this.state.childTasks.length; i++) {
+        if(_this.state.childTasks[i].id == task.id){
+          _this.state.childTasks[i].due_date = _this.state.due_date;
+          _this.state.childTasks[i].time_estimate = _this.state.time_estimate;
+          _this.state.childTasks[i].name = _this.state.name;
+          _this.setModalVisible(false, {})
+        }
+      }
+    })
+  }
+
   logoutUser(){
     var _this = this;
     this.props.onLogoutUser();
@@ -232,6 +267,12 @@ export default class Tasks extends React.Component {
   }
 
   setModalVisible(visible, task, creating_task, is_child) {
+    if(!creating_task){
+      this.setState({name: task.name});
+      this.setState({due_date: task.due_date});
+      this.setState({time_estimate: task.time_estimate});
+
+    }
     this.setState({current_task: task});
     this.setState({modalVisible: visible});
     this.setState({creating_task: creating_task});
@@ -266,6 +307,20 @@ export default class Tasks extends React.Component {
     return displayDate
   }
 
+  displayChildDate(date){
+    if(date.length >= 1){
+      var arr = date.split('-')
+      var year = arr[0];
+      var month = parseInt(arr[1]);
+      var day = arr[2];
+      var displayDate = month  + '/' + day + '/' + year;
+      return displayDate
+    }else{
+      return "Not Set"
+    }
+    
+  }
+
   snapEvent(index){
     Haptic.notification();
     this.setState({ slideIndex: index });
@@ -282,12 +337,16 @@ export default class Tasks extends React.Component {
               <Text style={{color: 'white'}}>Name</Text>
               <Text style={{color: 'white'}}>{taskAgain.name}</Text>
             </View>
-            <View style={{width: 100, height: 50, alignItems: 'center', borderBottomWidth: 0.5, borderColor: '#d6d7da'}}>
+            <View style={{width: 50, height: 50, alignItems: 'center', borderBottomWidth: 0.5, borderColor: '#d6d7da'}}>
               <Text style={{color: 'white'}}>Hours</Text>
               <Text style={{color: 'white'}}>{taskAgain.time_estimate}</Text>
             </View>
             <View style={{width: 100, height: 50, alignItems: 'center', borderBottomWidth: 0.5, borderColor: '#d6d7da'}}>
-              <Icon name='check' color='#7CFC00' size={25} onPress={() => this.setModalVisible(true, taskAgain, false, true)}/>
+              <Text style={{color: 'white'}}>Due Date</Text>
+              <Text style={{color: 'white'}}>{this.displayChildDate(taskAgain.due_date)}</Text>
+            </View>
+            <View style={{width: 50, height: 50, alignItems: 'center', borderBottomWidth: 0.5, borderColor: '#d6d7da'}}>
+              <Icon name='edit' color='#7CFC00' size={25} onPress={() => this.setModalVisible(true, taskAgain, false, true)}/>
             </View>
           </View>: null
       )
@@ -301,10 +360,10 @@ export default class Tasks extends React.Component {
               <Card containerStyle={{backgroundColor: '#8c9184', padding: 0, borderRadius: 5}} key={i}>
                 <Header
                   leftComponent={
-                    <Icon name='plus' color='#1ec0ff' size={30} onPress={() => this.setModalVisible(true, task, true, true)}/>
+                    <Icon name='plus' color='#1ec0ff' size={25} onPress={() => this.setModalVisible(true, task, true, true)}/>
                   }
                   centerComponent={{ text: task.name, style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
-                  rightComponent={<Icon name='check' color='#7CFC00' size={30} onPress={() => this.setModalVisible(true, task, false, true)}/>}
+                  rightComponent={<Icon name='edit' color='#7CFC00' size={25} onPress={() => this.setModalVisible(true, task, false, true)}/>}
                   containerStyle={{
                     backgroundColor: '#2b313a',
                     paddingTop: 0,
@@ -352,7 +411,7 @@ export default class Tasks extends React.Component {
                         </View>
                       }
                     </ScrollView>
-                
+                { this.pagination }
               </Card>
           </View>
         );
@@ -398,7 +457,6 @@ export default class Tasks extends React.Component {
         {
           this.state.show_carousel ?
             <View>
-              { this.pagination }
               <Carousel
                 ref={(c) => { this._carousel = c; }}
                 firstItem={this.state.slideIndex}
@@ -425,6 +483,60 @@ export default class Tasks extends React.Component {
               !this.state.creating_task ?
               <View alignItems='center'>
               <Card>
+                <TextInput
+                  placeholder={this.state.current_task.name}
+                  onChangeText={(name) => this.setState({name})}
+                  style={{height: 40, width: 300, borderBottomColor: 'white', borderBottomWidth: 0.5, color: 'black'}}
+                />
+                <TextInput
+                  placeholder='Estimated Hours'
+                  keyboardType = 'numeric'
+                  onChangeText={(time_estimate) => this.setState({time_estimate})}
+                  style={{height: 40, width: 300, borderBottomColor: 'white', borderBottomWidth: 0.5, color: 'black'}}
+                /> 
+                <DatePicker
+                  style={{width: 300, marginTop:10, marginBottom:10}}
+                  date={this.state.due_date}
+                  mode="date"
+                  placeholder="Due Date"
+                  format="YYYY-MM-DD"
+                  minDate= "2019-01-16"
+                  maxDate="2050-12-31"
+                  confirmBtnText="Confirm"
+                  cancelBtnText="Cancel"
+                  customStyles={{
+                    dateIcon: {
+                      display: 'none'
+                    },
+                    dateInput: {
+                      marginTop: 10,
+                      marginBottom: 10
+                    }
+                    // ... You can check the source to find the other keys.
+                  }}
+                  onDateChange={(date) => {this.setState({due_date: date})}}
+                />
+                <Button
+                  icon={
+                      <Icon
+                        name='edit'
+                        size={15}
+                        color='white'
+                      />
+                    }
+                    title='Save Changes'
+                    buttonStyle={{
+                    width: 300,
+                    height: 45,
+                    borderColor: "transparent",
+                    borderWidth: 0,
+                    borderRadius: 5,
+                    backgroundColor: '#1ec0ff'
+                  }}
+                  onPress={() => this._updateTask(this.state.current_task)}
+                />
+                <Divider style={{ height: 20, backgroundColor: '#fff' }} />
+
                 <Button
                 icon={
                     <Icon
@@ -433,7 +545,7 @@ export default class Tasks extends React.Component {
                       color='white'
                     />
                   }
-                  title={this.state.current_task.name}
+                  title='Complete Task'
                   buttonStyle={{
                   width: 300,
                   height: 45,
@@ -495,7 +607,7 @@ export default class Tasks extends React.Component {
                         style={{width: 300, marginTop:10, marginBottom:10}}
                         date={this.state.due_date}
                         mode="date"
-                        placeholder="select date"
+                        placeholder="Due Date"
                         format="YYYY-MM-DD"
                         minDate= "2019-01-16"
                         maxDate="2050-12-31"
@@ -559,6 +671,28 @@ export default class Tasks extends React.Component {
                         onChangeText={(time_estimate) => this.setState({time_estimate})}
                         style={{height: 40, width: 300, borderBottomColor: 'white', borderBottomWidth: 0.5, color: 'black'}}
                       /> 
+                      <DatePicker
+                        style={{width: 300, marginTop:10, marginBottom:10}}
+                        date={this.state.due_date}
+                        mode="date"
+                        placeholder="Due Date"
+                        format="YYYY-MM-DD"
+                        minDate= "2019-01-16"
+                        maxDate="2050-12-31"
+                        confirmBtnText="Confirm"
+                        cancelBtnText="Cancel"
+                        customStyles={{
+                          dateIcon: {
+                            display: 'none'
+                          },
+                          dateInput: {
+                            marginTop: 10,
+                            marginBottom: 10
+                          }
+                          // ... You can check the source to find the other keys.
+                        }}
+                        onDateChange={(date) => {this.setState({due_date: date})}}
+                      />
                       <Divider style={{ height: 20, backgroundColor: '#fff' }} />
                       <Button
                         title='Save'
@@ -597,7 +731,6 @@ export default class Tasks extends React.Component {
               </Card>
             </View>
             }
-            
           </View>
         </Modal>
      </View>
