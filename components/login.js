@@ -6,8 +6,8 @@ export default class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      email: 'jswen15@gmail.com',
-      password: 'password',
+      email: '',
+      password: '',
       confirmPassword: '',
       user: {},
       token: '',
@@ -32,7 +32,7 @@ export default class Login extends React.Component {
       formBody.push(encodedKey + "=" + encodedValue);
     }
     formBody = formBody.join("&");
-    fetch('http://10.0.1.117.xip.io:3000/auth/login', {
+    fetch('https://swensondonezo.herokuapp.com/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -46,10 +46,8 @@ export default class Login extends React.Component {
       _this.setUser();
     })
     .catch(function(error) {
-      console.log('There has been a problem with your fetch operation: ' + error.message);
-       // ADD THIS THROW error
-        throw error;
-      });
+      alert("There was an issue please try again!")
+    });
   }
 
   _getUserByEmail = async () => {
@@ -64,7 +62,7 @@ export default class Login extends React.Component {
       formBody.push(encodedKey + "=" + encodedValue);
     }
     formBody = formBody.join("&");
-    fetch('http://10.0.1.117.xip.io:3000/auth/getuserbyemail', {
+    fetch('https://swensondonezo.herokuapp.com/auth/getuserbyemail', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -79,10 +77,8 @@ export default class Login extends React.Component {
 
     })
     .catch(function(error) {
-      console.log('There has been a problem with your fetch operation: ' + error.message);
-       // ADD THIS THROW error
-        throw error;
-      });
+      alert("There was an issue please try again!")
+    });
   }
 
   _resetPassword = async () => {
@@ -98,7 +94,7 @@ export default class Login extends React.Component {
       formBody.push(encodedKey + "=" + encodedValue);
     }
     formBody = formBody.join("&");
-    fetch('http://10.0.1.117.xip.io:3000/auth/resetpassword', {
+    fetch('https://swensondonezo.herokuapp.com/auth/resetpassword', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
@@ -111,10 +107,8 @@ export default class Login extends React.Component {
 
     })
     .catch(function(error) {
-      console.log('There has been a problem with your fetch operation: ' + error.message);
-       // ADD THIS THROW error
-        throw error;
-      });
+      alert("There was an issue please try again!")
+    });
   }
 
   setUser(){
