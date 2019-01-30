@@ -346,7 +346,7 @@ export default class Tasks extends React.Component {
               <Text style={{color: 'white'}}>{this.displayChildDate(taskAgain.due_date)}</Text>
             </View>
             <View style={{width: 50, height: 50, alignItems: 'center', borderBottomWidth: 0.5, borderColor: '#d6d7da'}}>
-              <Icon name='edit' color='#7CFC00' size={25} onPress={() => this.setModalVisible(true, taskAgain, false, true)}/>
+              <Icon name='edit' color='#48b973' size={25} onPress={() => this.setModalVisible(true, taskAgain, false, true)}/>
             </View>
           </View>: null
       )
@@ -363,7 +363,7 @@ export default class Tasks extends React.Component {
                     <Icon name='plus' color='#1ec0ff' size={25} onPress={() => this.setModalVisible(true, task, true, true)}/>
                   }
                   centerComponent={{ text: task.name, style: { fontWeight: 'bold', fontSize: 18, color: 'white'} }}
-                  rightComponent={<Icon name='edit' color='#7CFC00' size={25} onPress={() => this.setModalVisible(true, task, false, true)}/>}
+                  rightComponent={<Icon name='edit' color='#48b973' size={25} onPress={() => this.setModalVisible(true, task, false, true)}/>}
                   containerStyle={{
                     backgroundColor: '#2b313a',
                     paddingTop: 0,
@@ -552,7 +552,7 @@ export default class Tasks extends React.Component {
                   borderColor: "transparent",
                   borderWidth: 0,
                   borderRadius: 5,
-                  backgroundColor: '#7CFC00'
+                  backgroundColor: '#48b973'
                 }}
                 onPress={() => this._completeTask(this.state.current_task)}
 

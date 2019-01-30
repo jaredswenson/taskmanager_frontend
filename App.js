@@ -42,7 +42,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <ImageBackground source={require("./assets/blue.png")} style={{width: null, height: null, flex: 1, resizeMode: 'center'}}>
+      <ImageBackground source={require("./assets/Donezo_BG_iPhoneX.jpeg")} style={{width: null, height: null, flex: 1, resizeMode: 'center'}}>
       <StatusBar backgroundColor="#2b313a" barStyle="light-content" />
         <View styles={styles.container}>
         {
@@ -61,7 +61,7 @@ export default class App extends React.Component {
               <Button
               title='Sign Up'
               buttonStyle={{
-                backgroundColor: "#7CFC00",
+                backgroundColor: "#48b973",
                 width: 300,
                 height: 45,
                 borderColor: "transparent",
